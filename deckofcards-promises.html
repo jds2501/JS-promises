@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script type="text/javascript">
+        const SHUFFLE = "https://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=1";
+        let deck_id = undefined;
+
+        function displayNewCard(imageURL) {
+            const img = document.createElement("img");
+            img.src = imageURL;
+            document.getElementById('cards').appendChild(img);
+        }
+
+        function hideDrawNewCard() {
+            document.getElementById("draw-card").style.display = "none";
+        }
+
+        function drawCard() {
+            const deck = `https://deckofcardsapi.com/api/deck/${deck_id}/draw/?count=1`;
+            fetch(deck)
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    }
+                }).then(data => {
+                    if(data["remaining"] === 0) {
+                        hideDrawNewCard();
+                    }
+
+                    displayNewCard(data["cards"][0]["image"]);
+                }).catch(error => {
+                    console.error(error);
+                });
+        }
+
+
+        fetch(SHUFFLE)
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                }
+            }).then(data => {
+                deck_id = data["deck_id"];
+            }).catch(error => {
+                console.error(error);
+            });
+
+        document.addEventListener("DOMContentLoaded", () => {
+            document.getElementById("draw-card").addEventListener('click', drawCard);
+        });
+    </script>
+</head>
+<body>
+    <button id="draw-card">GIMME A CARD!</button>
+    <div id="cards">
+    </div>
+</body>
+</html>
